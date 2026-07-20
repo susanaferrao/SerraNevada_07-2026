@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Serra Nevada → Paris 2026</title>
+<style>
+  :root{
+    --navy: #0A1B2E;
+    --navy2: #102841;
+    --navy3: #16324F;
+    --sky: #35A7E8;
+    --gold: #F2B705;
+    --mist: #93A9BD;
+    --ink: #EAF3FB;
+    --line: rgba(255,255,255,0.10);
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  button{ font-family:inherit; color:inherit; font-size:inherit; text-align:inherit; }
+  html,body{ margin:0; height:100%; }
+  body{
+    background: var(--navy);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    min-height:100vh;
+  }
+  .display{
+    font-family: "Arial Narrow", Arial, sans-serif;
+    font-weight:900;
+    text-transform:uppercase;
+    letter-spacing:.01em;
+  }
+  .mono{ font-family:"SF Mono","Courier New",monospace; font-variant-numeric: tabular-nums; }
+
+  #app{ max-width: 480px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; }
+
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar .brand{ display:flex; align-items:center; gap:8px; }
+  .wave{ width:22px; height:14px; flex:none; }
+  .brand-text{ font-size:12px; letter-spacing:.08em; color:var(--mist); text-transform:uppercase; }
+  .back-btn{
+    background:none; border:none; color: var(--sky); font-size:14px; font-weight:700;
+    cursor:pointer; padding:6px 4px;
+  }
+
+  main{ flex:1; padding: 18px 18px 40px; }
+
+  .hero{ padding: 18px 2px 8px; }
+  .eyebrow{
+    font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+    color: var(--gold); font-weight:700; margin:0 0 6px;
+  }
+  .hero h1{ margin:0 0 4px; font-size: 26px; line-height:1.08; }
+  .hero .sub{ color:var(--mist); font-size:13.5px; margin:0 0 22px; }
+
+  .clock{ display:grid; grid-template-columns: repeat(4,1fr); gap:8px; margin-bottom: 22px; }
+  .clock .cell{ background: var(--navy2); border: 1px solid var(--line); border-radius:10px; padding: 14px 4px 10px; text-align:center; }
+  .clock .num{ font-size: 30px; font-weight:700; line-height:1; }
+  .clock .unit{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--mist); margin-top:6px; }
+  .clock .cell.days{ border-color: rgba(242,183,5,0.35); background: linear-gradient(180deg, rgba(242,183,5,0.08), var(--navy2)); }
+  .clock .cell.days .num{ color: var(--gold); }
+  .race-meta{ display:flex; justify-content:space-between; font-size:12px; color:var(--mist); border-top:1px solid var(--line); padding-top:12px; margin-bottom: 8px; }
+  .race-meta b{ color: var(--ink); }
+
+  .section-label{ font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--mist); margin: 26px 0 10px; }
+  .athlete-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+  .athlete-tile{ background: var(--navy2); border:1px solid var(--line); border-radius:12px; padding:16px 12px; text-align:left; color:var(--ink); cursor:pointer; display:flex; flex-direction:column; gap:8px; }
+  .athlete-tile:active{ background: var(--navy3); }
+  .athlete-tile .avatar{ width:34px; height:34px; border-radius:50%; background: var(--sky); color:var(--navy); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; }
+  .athlete-tile .name{ font-weight:700; font-size:14.5px; }
+  .athlete-tile .meta{ font-size:11.5px; color:var(--mist); }
+
+  .link-row{ display:flex; justify-content:center; margin-top:28px; padding-top:16px; border-top:1px solid var(--line); }
+  .text-link{ background:none; border:none; color:var(--sky); font-size:13px; font-weight:700; cursor:pointer; padding:6px 0; }
+
+  .page-title{ font-size:22px; margin: 4px 0 2px; }
+  .page-sub{ color:var(--mist); font-size:13px; margin:0 0 20px; }
+
+  .empty{ background:var(--navy2); border:1px dashed var(--line); border-radius:12px; padding: 28px 18px; text-align:center; color:var(--mist); font-size:13.5px; margin-top:10px; }
+
+  .session-card{ background: var(--navy2); border:1px solid var(--line); border-radius:14px; padding:16px 16px 14px; margin-bottom:14px; }
+  .session-card .s-title{ font-weight:700; font-size:15px; margin:0 0 2px; }
+  .session-card .s-date{ font-size:11.5px; color:var(--mist); margin:0 0 12px; }
+
+  table.times{ width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:6px; }
+  table.times th, table.times td{ padding:6px 4px; text-align:center; border-bottom:1px solid var(--line); }
+  table.times th{ font-weight:700; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:#fff; }
+  .chart-legend{ display:flex; flex-wrap:wrap; gap:10px; margin: 4px 0 10px; }
+  .chart-legend .item{ display:flex; align-items:center; gap:5px; font-size:10.5px; color:var(--mist); }
+  .chart-legend .dot{ width:8px; height:8px; border-radius:50%; flex:none; }
+  .chart-box{ background: #FFFFFF; border-radius:10px; padding:10px 8px 4px; margin-bottom:14px; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+  table.times td.time.hl{ background: var(--gold); color: var(--navy); font-weight:800; border-radius:5px; }
+  table.times td.rep{ color:var(--mist); font-weight:700; }
+  table.times td.time{ font-family:"SF Mono","Courier New",monospace; }
+  table.times td.best{ color: var(--gold); font-weight:700; }
+  table.times tfoot td{ font-weight:700; border-bottom:none; padding-top:8px; }
+  table.times tfoot tr:first-child td{ border-top:1px solid var(--line); padding-top:10px; }
+  table.times tfoot tr.total td{ color: var(--sky); }
+
+  .stat-strip{ display:flex; gap:8px; margin-top:10px; }
+  .stat-chip{ flex:1; background: var(--navy3); border-radius:8px; padding:8px 10px; }
+  .stat-chip .l{ font-size:9.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--mist); }
+  .stat-chip .v{ font-family:"SF Mono","Courier New",monospace; font-size:14px; font-weight:700; }
+
+  footer.foot{ text-align:center; font-size:11px; color: var(--mist); padding: 10px 0 0; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============== DADOS DA SEMANA ==============
+   Editados diretamente aqui pela Susana/Claude, sessão a sessão.
+   Estrutura: cada sessão tem um título, uma data e os tempos de
+   cada atleta agrupados por série.
+================================================= */
+
+const ATHLETES = ["Angélica André","Diogo Cardoso","Francisco Amaral","Mafalda Rosa"];
+const RACE_UTC = Date.UTC(2026, 7, 4, 8, 0, 0); // 4 Aug 2026, 10:00 Paris (CEST = UTC+2)
+const SERIES_COLORS = ["#264653","#2A9D8F","#C9A227","#F4A261","#E76F51"];
+
+const SESSIONS = [
+  {
+    id: "s1",
+    date: "2026-07-20",
+    title: "5x(8x50) @50'' ritmo 400",
+    session: "Treino 20 julho · sessão da manhã",
+    athletes: {
+      "Angélica André": [
+        { label:"1ª", times:[34.90,34.73,34.91,34.10,34.63,34.45,34.90,34.42] },
+        { label:"2ª", times:[34.14,33.91,34.39,33.86,34.61,34.20,34.90,34.30] },
+        { label:"3ª", times:[34.29,33.69,34.34,34.89,34.18,33.43,34.82,33.46] },
+        { label:"4ª", times:[34.16,34.44,34.44,33.13,34.36,33.48,34.79,33.25] },
+        { label:"5ª", times:[34.03,33.76,34.22,33.45,34.55,33.56,34.56,33.35] }
+      ],
+      "Diogo Cardoso": [],
+      "Francisco Amaral": [
+        { label:"1ª", times:[30.26,29.83,30.77,31.09,30.06,31.34,31.23,30.98] },
+        { label:"2ª", times:[30.41,30.70,30.44,30.44,30.88,30.43,30.73,30.28] },
+        { label:"3ª", times:[30.34,29.74,29.91,29.65,30.65,29.88,29.53,29.95] },
+        { label:"4ª", times:[30.29,30.24,30.67,30.09,30.89,29.96,30.23,29.70] },
+        { label:"5ª", times:[30.26,30.33,30.34,29.89,30.47,29.79,29.98,28.93] }
+      ],
+      "Mafalda Rosa": []
+    }
+  }
+];
+
+let state = { view: "home", athlete: null, sessionId: null };
+
+function initials(name){ return name.split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase(); }
+function fmt2(n){ return n.toString().padStart(2,"0"); }
+function secToClock(totalSeconds){
+  const m = Math.floor(totalSeconds/60);
+  const s = (totalSeconds - m*60);
+  return m + ":" + s.toFixed(2).padStart(5,"0");
+}
+function seriesAvg(times){ return times.reduce((a,b)=>a+b,0)/times.length; }
+function seriesTotal(times){ return times.reduce((a,b)=>a+b,0); }
+function seriesBest(times){ return Math.min(...times); }
+function formatDate(iso){
+  const d = new Date(iso+"T12:00:00");
+  return d.toLocaleDateString("pt-PT", {weekday:"long", day:"numeric", month:"long"});
+}
+
+/* ============== RENDER SHELL ============== */
+
+function render(){
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+  app.appendChild(renderTopbar());
+  const main = document.createElement("main");
+  main.appendChild(renderView());
+  app.appendChild(main);
+}
+
+function renderTopbar(){
+  const bar = document.createElement("div");
+  bar.className = "topbar";
+  const brand = document.createElement("div");
+  brand.className = "brand";
+  brand.innerHTML = `
+    <svg class="wave" viewBox="0 0 32 20" fill="none">
+      <path d="M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0" stroke="#35A7E8" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M1 14c3-4 6-4 9 0s6 4 9 0 6-4 9 0" stroke="#F2B705" stroke-width="2.4" stroke-linecap="round" opacity="0.6"/>
+    </svg>
+    <span class="brand-text">Serra Nevada &rarr; Paris 2026</span>
+  `;
+  bar.appendChild(brand);
+  if(state.view !== "home"){
+    const back = document.createElement("button");
+    back.className = "back-btn";
+    if(state.view === "athlete-session"){
+      back.textContent = "‹ " + state.athlete.split(" ")[0];
+      back.onclick = () => { state.view = "athlete"; state.sessionId = null; render(); };
+    }else{
+      back.textContent = "‹ Início";
+      back.onclick = () => { state.view = "home"; state.athlete = null; state.sessionId = null; render(); };
+    }
+    bar.appendChild(back);
+  }
+  return bar;
+}
+
+function renderView(){
+  switch(state.view){
+    case "home": return viewHome();
+    case "athlete": return viewAthlete();
+    case "athlete-session": return viewAthleteSession();
+    case "task-list": return viewTaskList();
+    case "task": return viewTask();
+    default: return viewHome();
+  }
+}
+
+/* ============== HOME ============== */
+
+function viewHome(){
+  const wrap = document.createElement("div");
+  const hero = document.createElement("div");
+  hero.className = "hero";
+
+  const now = Date.now();
+  const diff = Math.max(0, RACE_UTC - now);
+  const totalSec = Math.floor(diff/1000);
+  const days = Math.floor(totalSec/86400);
+  const hours = Math.floor((totalSec%86400)/3600);
+  const mins = Math.floor((totalSec%3600)/60);
+  const secs = totalSec%60;
+
+  hero.innerHTML = `
+    <p class="eyebrow">Estágio em altitude · Serra Nevada</p>
+    <h1 class="display">10K Open Water<br>Swimming</h1>
+    <p class="sub">European Aquatics Championships · Rio Sena</p>
+    <div class="clock">
+      <div class="cell days"><div class="num mono">${days}</div><div class="unit">dias</div></div>
+      <div class="cell"><div class="num mono">${fmt2(hours)}</div><div class="unit">horas</div></div>
+      <div class="cell"><div class="num mono">${fmt2(mins)}</div><div class="unit">min</div></div>
+      <div class="cell"><div class="num mono">${fmt2(secs)}</div><div class="unit">seg</div></div>
+    </div>
+    <div class="race-meta">
+      <span>4 ago · <b>10:00</b> Paris</span>
+    </div>
+  `;
+  wrap.appendChild(hero);
+
+  const label = document.createElement("p");
+  label.className = "section-label";
+  label.textContent = "Ver treinos por atleta";
+  wrap.appendChild(label);
+
+  const grid = document.createElement("div");
+  grid.className = "athlete-grid";
+  ATHLETES.forEach(name=>{
+    const tile = document.createElement("button");
+    tile.className = "athlete-tile";
+    const count = SESSIONS.filter(s=>s.athletes[name] && s.athletes[name].length).length;
+    tile.innerHTML = `
+      <span class="avatar">${initials(name)}</span>
+      <span class="name">${name}</span>
+      <span class="meta">${count} treino${count===1?"":"s"}</span>
+    `;
+    tile.onclick = ()=>{ state.view="athlete"; state.athlete=name; render(); };
+    grid.appendChild(tile);
+  });
+  wrap.appendChild(grid);
+
+  const linkRow = document.createElement("div");
+  linkRow.className = "link-row";
+  const taskBtn = document.createElement("button");
+  taskBtn.className = "text-link";
+  taskBtn.textContent = "Ver por tarefa →";
+  taskBtn.onclick = ()=>{ state.view="task-list"; render(); };
+  linkRow.appendChild(taskBtn);
+  wrap.appendChild(linkRow);
+
+  return wrap;
+}
+
+/* ============== ATHLETE VIEW ============== */
+
+function viewAthlete(){
+  const wrap = document.createElement("div");
+  const mySessions = SESSIONS
+    .filter(s=>s.athletes[state.athlete] && s.athletes[state.athlete].length)
+    .sort((a,b)=> b.date.localeCompare(a.date));
+
+  wrap.innerHTML = `<p class="page-title" style="font-weight:700">${state.athlete}</p>
+    <p class="page-sub">${mySessions.length} treino${mySessions.length===1?"":"s"}</p>`;
+
+  if(mySessions.length===0){
+    const e = document.createElement("div");
+    e.className = "empty";
+    e.textContent = "Ainda não há treinos registados para este atleta.";
+    wrap.appendChild(e);
+    return wrap;
+  }
+
+  mySessions.forEach(s=>{
+    const btn = document.createElement("button");
+    btn.className = "session-card";
+    btn.style.width = "100%";
+    btn.style.textAlign = "left";
+    btn.style.cursor = "pointer";
+    btn.innerHTML = `<p class="s-title">${s.title}</p><p class="s-date" style="margin-bottom:0">${s.session || formatDate(s.date)}</p>`;
+    btn.onclick = ()=>{ state.view="athlete-session"; state.sessionId=s.id; render(); };
+    wrap.appendChild(btn);
+  });
+  return wrap;
+}
+
+function viewAthleteSession(){
+  const wrap = document.createElement("div");
+  const session = SESSIONS.find(s=>s.id===state.sessionId);
+  if(!session){
+    wrap.innerHTML = `<div class="empty">Sessão não encontrada.</div>`;
+    return wrap;
+  }
+  const label = document.createElement("p");
+  label.className = "page-title";
+  label.style.cssText = "font-weight:700; font-size:15px; color:#93A9BD; margin-bottom:14px;";
+  label.textContent = state.athlete;
+  wrap.appendChild(label);
+  wrap.appendChild(renderAthleteSessionCard(session, state.athlete));
+  return wrap;
+}
+
+function buildChartSVG(seriesArr){
+  const W=300, H=150, padL=32, padR=6, padT=8, padB=16;
+  const plotW=W-padL-padR, plotH=H-padT-padB;
+  const maxLen = Math.max(...seriesArr.map(s=>s.times.length));
+  const allVals = seriesArr.flatMap(s=>s.times);
+  const min=Math.min(...allVals), max=Math.max(...allVals);
+  const pad=(max-min)*0.2 || 0.3;
+  const dMin=min-pad, dMax=max+pad;
+  const xFor = i => padL + (maxLen<=1?0:(i/(maxLen-1))*plotW);
+  const yFor = v => padT + (dMax-v)/(dMax-dMin)*plotH;
+
+  let bg = `<rect x="0" y="0" width="${W}" height="${H}" fill="#FFFFFF"/>`;
+
+  let grid = '';
+  const STEPS = 5;
+  for(let g=0; g<=STEPS; g++){
+    const gv = dMin + (dMax-dMin)*g/STEPS;
+    const gy = yFor(gv);
+    grid += `<line x1="${padL}" y1="${gy.toFixed(1)}" x2="${W-padR}" y2="${gy.toFixed(1)}" stroke="#E7EEF3" stroke-width="1"/>`;
+    grid += `<text x="${padL-4}" y="${(gy+2.5).toFixed(1)}" font-size="7" fill="#6B8598" text-anchor="end">${gv.toFixed(2)}</text>`;
+  }
+
+  let lines = '';
+  seriesArr.forEach((s,idx)=>{
+    const color = SERIES_COLORS[idx % SERIES_COLORS.length];
+    const pts = s.times.map((t,i)=> `${xFor(i).toFixed(1)},${yFor(t).toFixed(1)}`).join(' ');
+    lines += `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`;
+    s.times.forEach((t,i)=>{
+      lines += `<circle class="pt" data-s="${idx}" data-r="${i}" cx="${xFor(i).toFixed(1)}" cy="${yFor(t).toFixed(1)}" r="3.4" fill="${color}" stroke="#FFFFFF" stroke-width="1.2"/>`;
+    });
+  });
+
+  let xlabels = '';
+  for(let i=0;i<maxLen;i++){
+    xlabels += `<text x="${xFor(i).toFixed(1)}" y="${H-3}" font-size="7" fill="#6B8598" text-anchor="middle">${i+1}</text>`;
+  }
+
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;">${bg}${grid}${lines}${xlabels}</svg>`;
+}
+
+function buildChartLegend(seriesArr){
+  const legend = document.createElement("div");
+  legend.className = "chart-legend";
+  seriesArr.forEach((s,idx)=>{
+    const item = document.createElement("span");
+    item.className = "item";
+    item.innerHTML = `<span class="dot" style="background:${SERIES_COLORS[idx % SERIES_COLORS.length]}"></span>${s.label} série`;
+    legend.appendChild(item);
+  });
+  return legend;
+}
+
+function renderAthleteSessionCard(session, athleteName){
+  const card = document.createElement("div");
+  card.className = "session-card";
+  const seriesArr = session.athletes[athleteName];
+
+  let allTimes = [];
+  seriesArr.forEach(sr=> allTimes = allTimes.concat(sr.times));
+  const overallAvg = seriesAvg(allTimes);
+  const overallBest = seriesBest(allTimes);
+  const maxLen = Math.max(...seriesArr.map(sr=>sr.times.length));
+
+  let theadCols = seriesArr.map((sr,idx)=>`<th style="background:${SERIES_COLORS[idx % SERIES_COLORS.length]}">${sr.label}</th>`).join("");
+  let bodyRows = "";
+  for(let r=0;r<maxLen;r++){
+    let cols = seriesArr.map((sr,sIdx)=>{
+      if(r>=sr.times.length) return `<td class="time">–</td>`;
+      const t = sr.times[r];
+      const cls = (t===overallBest) ? "time best" : "time";
+      return `<td class="${cls}" data-s="${sIdx}" data-r="${r}">${t.toFixed(2)}</td>`;
+    }).join("");
+    bodyRows += `<tr><td class="rep">${r+1}</td>${cols}</tr>`;
+  }
+  let avgRow = seriesArr.map(sr=>`<td class="time">${seriesAvg(sr.times).toFixed(2)}</td>`).join("");
+  let totalRow = seriesArr.map(sr=>`<td class="time">${secToClock(seriesTotal(sr.times))}</td>`).join("");
+
+  card.innerHTML = `
+    <p class="s-title">${session.title}</p>
+    <p class="s-date">${session.session || formatDate(session.date)}</p>
+  `;
+
+  card.appendChild(buildChartLegend(seriesArr));
+  const chartBox = document.createElement("div");
+  chartBox.className = "chart-box";
+  chartBox.innerHTML = buildChartSVG(seriesArr);
+  card.appendChild(chartBox);
+
+  const tableWrap = document.createElement("div");
+  tableWrap.innerHTML = `
+    <table class="times">
+      <thead><tr><th>Rep</th>${theadCols}</tr></thead>
+      <tbody>${bodyRows}</tbody>
+      <tfoot>
+        <tr><td class="rep">Média</td>${avgRow}</tr>
+        <tr class="total"><td class="rep">Total</td>${totalRow}</tr>
+      </tfoot>
+    </table>
+    <div class="stat-strip">
+      <div class="stat-chip"><div class="l">Média geral</div><div class="v">${overallAvg.toFixed(2)}s</div></div>
+      <div class="stat-chip"><div class="l">Melhor tempo</div><div class="v">${overallBest.toFixed(2)}s</div></div>
+    </div>
+  `;
+  card.appendChild(tableWrap);
+
+  chartBox.querySelectorAll("circle.pt").forEach(pt=>{
+    pt.addEventListener("click", ()=>{
+      const s = pt.getAttribute("data-s");
+      const r = pt.getAttribute("data-r");
+      card.querySelectorAll("td.time.hl").forEach(td=>td.classList.remove("hl"));
+      chartBox.querySelectorAll("circle.pt").forEach(p=>{ p.setAttribute("r","3.4"); });
+      const targetTd = tableWrap.querySelector(`td[data-s="${s}"][data-r="${r}"]`);
+      if(targetTd){
+        targetTd.classList.add("hl");
+        if(typeof targetTd.scrollIntoView === "function"){
+          targetTd.scrollIntoView({behavior:"smooth", block:"nearest"});
+        }
+      }
+      pt.setAttribute("r","5");
+    });
+  });
+
+  return card;
+}
+
+/* ============== TASK LIST / TASK VIEW ============== */
+
+function viewTaskList(){
+  const wrap = document.createElement("div");
+  wrap.innerHTML = `<p class="page-title" style="font-weight:700">Tarefas</p>
+    <p class="page-sub">Todas as sessões da semana</p>`;
+
+  const list = [...SESSIONS].sort((a,b)=> b.date.localeCompare(a.date));
+  if(list.length===0){
+    const e = document.createElement("div");
+    e.className = "empty";
+    e.textContent = "Ainda não há tarefas registadas.";
+    wrap.appendChild(e);
+    return wrap;
+  }
+
+  list.forEach(s=>{
+    const card = document.createElement("button");
+    card.className = "session-card";
+    card.style.width = "100%";
+    card.style.textAlign = "left";
+    card.style.cursor = "pointer";
+    const nAthletes = Object.keys(s.athletes).filter(a=>s.athletes[a].length).length;
+    card.innerHTML = `<p class="s-title">${s.title}</p><p class="s-date">${s.session || formatDate(s.date)} · ${nAthletes} atleta${nAthletes===1?"":"s"}</p>`;
+    card.onclick = ()=>{ state.view="task"; state.sessionId=s.id; render(); };
+    wrap.appendChild(card);
+  });
+  return wrap;
+}
+
+function viewTask(){
+  const wrap = document.createElement("div");
+  const session = SESSIONS.find(s=>s.id===state.sessionId);
+  if(!session){
+    wrap.innerHTML = `<div class="empty">Tarefa não encontrada.</div>`;
+    return wrap;
+  }
+  wrap.innerHTML = `<p class="page-title" style="font-weight:700">${session.title}</p>
+    <p class="page-sub">${session.session || formatDate(session.date)}</p>`;
+
+  ATHLETES.forEach(name=>{
+    const seriesArr = session.athletes[name];
+    if(!seriesArr || !seriesArr.length) return;
+    const card = renderAthleteSessionCard(session, name);
+    const nameTag = document.createElement("p");
+    nameTag.style.cssText = "font-weight:700;font-size:13px;color:#35A7E8;margin:0 0 6px;";
+    nameTag.textContent = name;
+    card.insertBefore(nameTag, card.firstChild);
+    const sTitle = card.querySelector(".s-title");
+    const sDate = card.querySelector(".s-date");
+    if(sTitle) sTitle.remove();
+    if(sDate) sDate.remove();
+    wrap.appendChild(card);
+  });
+
+  return wrap;
+}
+
+/* ============== BOOT ============== */
+
+render();
+setInterval(()=>{ if(state.view==="home") render(); }, 1000);
+</script>
+</body>
+</html>
