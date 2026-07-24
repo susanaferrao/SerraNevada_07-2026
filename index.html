@@ -345,6 +345,20 @@ const SESSIONS = [
       ]},
       "Mafalda Rosa": { blocks: [] }
     }
+  },
+  {
+    id: "s7",
+    date: "2026-07-24",
+    title: "20x100L @1'20''/1'20''/1'50''/2'30'' (ciclo)",
+    session: "Sessão 7 · Treino 24 julho, manhã",
+    athletes: {
+      "Angélica André": [],
+      "Diogo Cardoso": [],
+      "Francisco Amaral": [],
+      "Mafalda Rosa": [
+        { label:"20x100", times:[73.33,71.91,69.20,67.50,73.10,71.11,69.23,66.48,72.17,71.67,68.43,65.96,72.25,71.32,69.53,65.84,73.25,71.89,69.72,65.60], hrRepAvg:[133,138,139,138,144,149,147,145,142,143,146,149,151,144,142,144,146,148,129,122], hrRepMax:[139,143,147,147,149,152,152,151,151,152,152,153,155,152,152,151,152,153,152,126] }
+      ]
+    }
   }
 ];
 
@@ -748,11 +762,11 @@ function renderAthleteSessionCard(session, athleteName){
         if(showHR && sr.hrRepAvg && sr.hrRepAvg[r]!==undefined){
           hrSub = `<div class="rep-hr">${sr.hrRepAvg[r]}/${sr.hrRepMax[r]}</div>`;
         }
-        return `<td class="${cls}" data-s="${sIdx}" data-r="${r}"><div>${t.toFixed(2)}</div>${hrSub}</td>`;
+        return `<td class="${cls}" data-s="${sIdx}" data-r="${r}"><div>${formatSplitTime(t)}</div>${hrSub}</td>`;
       }).join("");
       bodyRows += `<tr><td class="rep">${r+1}</td>${cols}</tr>`;
     }
-    let avgRow = seriesArr.map(sr=>`<td class="time">${seriesAvg(sr.times).toFixed(2)}</td>`).join("");
+    let avgRow = seriesArr.map(sr=>`<td class="time">${formatSplitTime(seriesAvg(sr.times))}</td>`).join("");
     let totalRow = seriesArr.map(sr=>`<td class="time">${secToClock(seriesTotal(sr.times))}</td>`).join("");
     let hrRows = "";
     if(showHR && hasHR){
@@ -777,8 +791,8 @@ function renderAthleteSessionCard(session, athleteName){
         </tfoot>
       </table>
       <div class="stat-strip">
-        <div class="stat-chip"><div class="l">Média geral</div><div class="v">${overallAvg.toFixed(2)}s</div></div>
-        <div class="stat-chip"><div class="l">Melhor tempo</div><div class="v">${overallBest.toFixed(2)}s</div></div>
+        <div class="stat-chip"><div class="l">Média geral</div><div class="v">${formatSplitTime(overallAvg)}</div></div>
+        <div class="stat-chip"><div class="l">Melhor tempo</div><div class="v">${formatSplitTime(overallBest)}</div></div>
       </div>
     `;
   }
@@ -853,11 +867,11 @@ function buildTimesBlockDOM(blockTitle, seriesArr, getShowHR){
         if(showHR && sr.hrRepAvg && sr.hrRepAvg[r]!==undefined){
           hrSub = `<div class="rep-hr">${sr.hrRepAvg[r]}/${sr.hrRepMax[r]}</div>`;
         }
-        return `<td class="${cls}" data-s="${sIdx}" data-r="${r}"><div>${t.toFixed(2)}</div>${hrSub}</td>`;
+        return `<td class="${cls}" data-s="${sIdx}" data-r="${r}"><div>${formatSplitTime(t)}</div>${hrSub}</td>`;
       }).join("");
       bodyRows += `<tr><td class="rep">${r+1}</td>${cols}</tr>`;
     }
-    let avgRow = seriesArr.map(sr=>`<td class="time">${seriesAvg(sr.times).toFixed(2)}</td>`).join("");
+    let avgRow = seriesArr.map(sr=>`<td class="time">${formatSplitTime(seriesAvg(sr.times))}</td>`).join("");
     let totalRow = seriesArr.map(sr=>`<td class="time">${secToClock(seriesTotal(sr.times))}</td>`).join("");
     let hrRows = "";
     if(showHR && hasHR){
@@ -882,8 +896,8 @@ function buildTimesBlockDOM(blockTitle, seriesArr, getShowHR){
         </tfoot>
       </table>
       <div class="stat-strip">
-        <div class="stat-chip"><div class="l">Média geral</div><div class="v">${overallAvg.toFixed(2)}s</div></div>
-        <div class="stat-chip"><div class="l">Melhor tempo</div><div class="v">${overallBest.toFixed(2)}s</div></div>
+        <div class="stat-chip"><div class="l">Média geral</div><div class="v">${formatSplitTime(overallAvg)}</div></div>
+        <div class="stat-chip"><div class="l">Melhor tempo</div><div class="v">${formatSplitTime(overallBest)}</div></div>
       </div>
     `;
   }
