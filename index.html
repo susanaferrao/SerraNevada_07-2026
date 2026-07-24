@@ -110,6 +110,7 @@
   table.times tfoot tr.hr td{ color: var(--pulse); font-size:11.5px; }
   table.times tfoot tr.hr td.rep{ color: var(--pulse); }
   .rep-hr{ font-size:8.5px; color:var(--pulse); font-family:"SF Mono","Courier New",monospace; margin-top:1px; opacity:0.9; }
+  .rep-split{ font-size:8.5px; color:var(--mist); font-family:"SF Mono","Courier New",monospace; margin-top:1px; }
 
   table.endurance-table{ width:100%; border-collapse:collapse; font-size:11.5px; margin-bottom:6px; }
   table.endurance-table th, table.endurance-table td{ padding:8px 5px; text-align:center; border-bottom:1px solid var(--line); }
@@ -356,7 +357,9 @@ const SESSIONS = [
       "Diogo Cardoso": [],
       "Francisco Amaral": [],
       "Mafalda Rosa": [
-        { label:"20x100", times:[73.33,71.91,69.20,67.50,73.10,71.11,69.23,66.48,72.17,71.67,68.43,65.96,72.25,71.32,69.53,65.84,73.25,71.89,69.72,65.60], hrRepAvg:[133,138,139,138,144,149,147,145,142,143,146,149,151,144,142,144,146,148,129,122], hrRepMax:[139,143,147,147,149,152,152,151,151,152,152,153,155,152,152,151,152,153,152,126] }
+        { label:"20x100", times:[73.33,71.91,69.20,67.50,73.10,71.11,69.23,66.48,72.17,71.67,68.43,65.96,72.25,71.32,69.53,65.84,73.25,71.89,69.72,65.60],
+          splits:[[35.35,37.98],[35.31,36.60],[34.55,34.65],[32.18,35.02],[35.25,37.85],[35.30,35.81],[33.63,35.60],[31.65,34.83],[34.73,37.44],[34.97,36.70],[33.32,35.11],[31.56,34.40],[34.90,37.35],[34.88,36.44],[34.16,35.37],[31.34,34.50],[35.75,37.50],[35.63,36.26],[34.38,35.34],[31.67,33.93]],
+          hrRepAvg:[133,138,139,138,144,149,147,145,142,143,146,149,151,144,142,144,146,148,129,122], hrRepMax:[139,143,147,147,149,152,152,151,151,152,152,153,155,152,152,151,152,153,152,126] }
       ]
     }
   }
@@ -762,7 +765,11 @@ function renderAthleteSessionCard(session, athleteName){
         if(showHR && sr.hrRepAvg && sr.hrRepAvg[r]!==undefined){
           hrSub = `<div class="rep-hr">${sr.hrRepAvg[r]}/${sr.hrRepMax[r]}</div>`;
         }
-        return `<td class="${cls}" data-s="${sIdx}" data-r="${r}"><div>${formatSplitTime(t)}</div>${hrSub}</td>`;
+        let splitSub = "";
+        if(sr.splits && sr.splits[r]){
+          splitSub = `<div class="rep-split">${sr.splits[r].map(v=>v.toFixed(2)).join(" + ")}</div>`;
+        }
+        return `<td class="${cls}" data-s="${sIdx}" data-r="${r}"><div>${formatSplitTime(t)}</div>${splitSub}${hrSub}</td>`;
       }).join("");
       bodyRows += `<tr><td class="rep">${r+1}</td>${cols}</tr>`;
     }
@@ -867,7 +874,11 @@ function buildTimesBlockDOM(blockTitle, seriesArr, getShowHR){
         if(showHR && sr.hrRepAvg && sr.hrRepAvg[r]!==undefined){
           hrSub = `<div class="rep-hr">${sr.hrRepAvg[r]}/${sr.hrRepMax[r]}</div>`;
         }
-        return `<td class="${cls}" data-s="${sIdx}" data-r="${r}"><div>${formatSplitTime(t)}</div>${hrSub}</td>`;
+        let splitSub = "";
+        if(sr.splits && sr.splits[r]){
+          splitSub = `<div class="rep-split">${sr.splits[r].map(v=>v.toFixed(2)).join(" + ")}</div>`;
+        }
+        return `<td class="${cls}" data-s="${sIdx}" data-r="${r}"><div>${formatSplitTime(t)}</div>${splitSub}${hrSub}</td>`;
       }).join("");
       bodyRows += `<tr><td class="rep">${r+1}</td>${cols}</tr>`;
     }
